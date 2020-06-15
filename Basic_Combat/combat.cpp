@@ -117,7 +117,10 @@ void Combat::initCombat(Player players[], Enemy enemies[]){
 						for(int i=0; i<enemies_size; i++){
 							std::cout<<"("<<i<<")"<<"enemy: "<<enemies[i].get_name()<<"\n";
 						}
-						std::cout<<"("<<enemies_size<<")back:"<<"\n";
+						for(int j=enemies_size; j<combat_size; j++){
+							std::cout<<"("<<j<<")"<<"player: "<<players[combat_size-j-1].get_name()<<"\n";
+						}
+						std::cout<<"("<<combat_size<<")back:"<<"\n";
 						std::cin>>second_choice;
 						
 						if(second_choice<enemies_size){ 
@@ -133,6 +136,20 @@ void Combat::initCombat(Player players[], Enemy enemies[]){
 								}
 								remove(players,enemies,second_choice);
 								enemydefeated=false;
+							}
+							
+							if(second_choice>=enemies_size && second_choice<combat_size){ //attack player
+							int min=combat_size-second_choice-1;
+							std::cout<<min;
+							std::cout<<"-"<<players[position].get_damage()<<"\n";
+							players[min].take_damage(players[position].get_damage());
+							std::cout<<"player "<<players[min].get_name()<<" hp:"<<players[min].get_hp()<<"\n";
+							
+							if(players[min].get_hp()==0){// player is dead
+								std::cout<<"player: "<<players[min].get_name()<<" defeated\n";
+								playerdefeated=true;
+								remove(players,enemies,min);
+								playerdefeated=false;
 							}
 						}
 						break;
@@ -178,22 +195,37 @@ void Combat::initCombat(Player players[], Enemy enemies[]){
 }
 
 void Combat::remove(Player players[], Enemy enemies[], int n){ //remove a player or enemy
+	int sped=0;
 	if(enemydefeated){
-		for(int i=0; i<enemies_size; i++)
-            if(i==n)
-                for(int j=i; j<enemies_size-1; j++)
-                    enemies[j]=enemies[j+1];
+		for(int i=0; i<enemies_size; i++) //arary of enemies
+            		if(i==n){
+				sped=enemies[i].get_speed();
+                		for(int j=i; j<enemies_size-1; j++)
+         		   		enemies[j]=enemies[j+1];
+			}
+		
+		for(int k=0; k<combat_size; k++) //array of turns
+			if(turn[k]==sped)
+				for(int l=k; l<combat_size-1; l++)
+					turn[l]=turn[l+1];
 		enemies_size--;
-		put_speed(players,enemies);
+		combat_size--;
 		
 	}
 	if(playerdefeated){
-		for(int i=0; i<players_size; i++)
-            if(i==n)
-                for(int j=i; j<players_size-1; j++)
-                    players[j]=players[j+1];
+		for(int i=0; i<players_size; i++)//arary of players
+           		 if(i==n){
+				sped=players[i].get_speed();
+                		for(int j=i; j<players_size-1; j++)
+					players[j]=players[j+1];
+			}
+			
+		for(int k=0; k<combat_size; k++)//array of turns
+			if(turn[k]==sped)
+				for(int l=k; l<combat_size-1; l++)
+					turn[l]=turn[l+1];
 		players_size--;
-		put_speed(players,enemies);
+		combat_size--;
 	}
 	enemydefeated=false;
 	playerdefeated=false;
